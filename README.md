@@ -358,7 +358,7 @@ The confusion matrix confirms our initial observations.  The model does well pre
 
 ## Steps for Improvement
 
-Plotting the feature importance is very telling.  Review count overwhelms every other feature in our data set!  In future attemps, we might be better off excluding this feature entirely
+Plotting the feature importance is very telling.  Review count overwhelms every other feature in our data set!  In future attempts, we might be better off excluding this feature entirely
 This serves as a good baseline, but there's a lot of room for improvement.  What could our next steps be to make it more robust?
 
 - We removed all of the geographic information in the initial cleaning of the data set.  How might we incorporate this?  Are reviewers in Québec more generous in their ratings than those in Nevada?  What if we brought in additional geographic data such as census information to tell us more about the neighborhoods these restaurants could be found in?
