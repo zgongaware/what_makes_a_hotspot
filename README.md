@@ -66,6 +66,34 @@ We've found a golf course in Phoenix, Arizona, which apparently is not good for 
 We can also see that we have pretty good coverage throughout the fields.  `hours`, `attributes`, and `categories` contain varying amounts of missing fields.  This will need to be accounted for, as well.  Let's first try to isolate our restaurants.
 
 ```python
+def retrieve_restaurants(file):
+    """
+    Iterate over JSON file and funnel restaurants to a dataframe for analysis
+    """
+    # Retrieve JSONReader generator
+    reader = pd.read_json(file, lines=True, chunksize=1000)
+    
+    # Define empty dataframe for storing matches
+    cols = ['address', 'attributes', 'business_id', 'categories', 'city', 'latitude', 'longitude', 
+            'name', 'postal_code', 'review_count', 'stars', 'state', 'restaurant']
+    
+    restaurants = pd.DataFrame(columns=cols)
+    
+    # Iterate over chunks, and funnel matches into dataframe
+    for chunk in reader:
+        
+        chunk["restaurant"] = chunk["categories"].apply(lambda x:
+            "Restaurants" in x.replace(" ", "").split(",") if x is not None else False
+        )
+        
+        restaurants = pd.concat([restaurants, chunk[chunk["restaurant"]]], sort=True)
+    
+    # Set index to business_id
+    restaurants.set_index("business_id", inplace=True)
+        
+    return restaurants
+    
+restaurants = retrieve_restaurants(file)
 restaurants.head(1)['attributes'].values[0]
 ```
 ```
@@ -94,22 +122,130 @@ Now we're talking.  Dim sum in Mississa-something!  Ouch on the 2.5 stars though
 
 Digging in to the `attributes` column, we see there is a wealth of information - the type of meals a restaurant is good for, ambience, alcohol service, noise level, even wifi availability!  Some fields like `Ambience` even have their own nested dictionaries.  In order to properly analyze this set, we'll need to normalize these attributes into our dataframe.
 
+```python
+def parse_nested(x):
+    """
+    Assist in removing some of the artifacts preventing clean parsing of nested data
+    """
+    
+    if x is None:
+        return '{"None": True}'
+    elif x == "None":
+        return '{"None": True}'
+    else:
+        return x
+    
+def normalize_nested(df, col):
+    """
+    Clean a nested column within the attributes field, convert from string to a dictionary, and normalize to fit the data set
+    """
+    
+    norm = df["attributes"].apply(lambda x: x.get(col) if x is not None else '{"None": 1}')
+    
+    norm = norm.apply(parse_nested)
+    
+    norm = norm.apply(literal_eval)
+    
+    norm = json_normalize(norm).set_index(df.index)
+    
+    for c in norm.columns:
+        # Rename columns with prefix
+        new_name = col.lower()+"_"+c
+        norm.rename(columns={c: new_name}, inplace=True)
+        
+        # Set True/False to 1/0
+        norm[new_name] = norm[new_name].apply(lambda x: 1 if x is True else 0)
+        
+    norm.fillna(0, inplace=True)
+    
+    return df.merge(norm, left_index=True, right_index=True)
+
+def parse_attributes(df):
+    """
+    Parse attribute fields that do not contain nested data and remove unicode artifacts
+    """
+    
+    # Selected Attributes
+    attr = ["NoiseLevel", "RestaurantsTableService", "RestaurantsTakeOut", "OutdoorSeating", "Alcohol", 
+            "RestaurantsAttire", "RestaurantsDelivery", "RestaurantsGoodForGroups", "GoodForKids"]
+
+    for a in attr:
+        
+        col = a.lower()
+        
+        # Set as column
+        df[col] = df["attributes"].apply(lambda x: x.get(a) if x is not None else 0)
+        
+        # Remove unicode references
+        df[col] = df[col].str.replace("u'", "").str.replace("'", "")
+                
+    return df
+    
+def parse_dummies(df):
+    """
+    Parse string columns in Attributes field and convert to dummy variables
+    """
+    
+    # Dummy columns
+    dummies = ["noiselevel", "alcohol", "restaurantsattire"]
+
+    for d in dummies:
+        
+        # Get dummies and merge on dataframe
+        df = df.merge(pd.get_dummies(df[d], prefix=d), left_index=True, right_index=True)
+        
+    return df
+
+def format_restaurants(df):
+    """
+    Normalized nested field, parse attributes, and create dummy columns where necessary.  Remove 
+    columns that are extraneous to our analysis, and ensure all fields are either integer or float.
+    """
+    
+    # Normalize Ambience columns
+    df = normalize_nested(df, "Ambience")
+    
+    # Normalize GoodForMeal columns
+    df = normalize_nested(df, "GoodForMeal")
+    
+    # Parse attribute columns
+    df = parse_attributes(df)
+    
+    # Parse dummies
+    df = parse_dummies(df)
+    
+    # Drop extraneous columns
+    drop_cols = ['attributes', 'noiselevel', 'alcohol', 'restaurantsattire', 'address', 'categories', 
+                 'city', 'latitude', 'longitude', 'name', 'postal_code', 'state', 'restaurant', 'hours',
+                 'is_open', 'ambience_None', 'goodformeal_None', 'noiselevel_None', 'alcohol_None',
+                 'restaurantsattire_None']
+    
+    df.drop(columns=drop_cols, inplace=True)
+    
+    # Set review_count to int
+    df["review_count"] = df["review_count"].astype(int)
+    
+    # If column is still an object, set values to binary
+    for col in df.columns:
+        if df[col].dtype in [object, bool]:
+            df[col] = df[col].apply(lambda x: 1 if x == 'True' else 0)
+    
+    return df
+    
+clean = format_restaurants(restaurants)
+```
 ## Cleaned Data
 Wow! That was a lot of work!  There were a few eccentricities in the attributes field that required some extra attention.  Mainly, some of the nested dictionaries were inconsistently formatted, which required some additional parsing logic.  Regardless, we now have a normalized dataset with dummy variables for many of the nested items within the attributes field.  Our data is also now entirely numeric, which should make the next analysis steps much smoother.
 
 ## Distribution of Star Ratings
 ![dist1](img/Distribution%20of%20Star%20Ratings.png "Distribution of Star Ratings")
-
 ![dist2](img/Cumulative%20Distribution%20of%20Star%20Ratings.png "Cumulative Distribution of Star Ratings")
-
 The distribution of star ratings appears to be slightly skewed towards higher ratings, though fives remain relatively rare.  It seems Yelp reviewers trend towards the "good, but not great" view on most restaurants - at least in the cities we have available to us.  Looking at the cumulative distribution chart, we can see just about 60% of reviews fall at 3.5 stars or less.
 
 ## The Impact of Review Count
 
 But let's dive a bit deeper and see how review count factors in.  Do we see restaurants with a higher number of reviews regress towards the mean of rating? Are there some that resist the pull towards the center?
-
 ![dist3](img/Distribution of Review Count by Star Rating.png "Distribution of Review Count by Star Rating")
-
 Interesting!  We can see our middle-of-the-pack restaurants typically have a higher count of reviews than those on the edges.  One star reviewed restaurants have the least reviews.  This might be from bad reviews driving other Yelpers away, or it could just be that nobody posts a review for the McDonald's on Exit 73 unless they've had a really bad experience.  Five star reviewed restaurants have the second-lowest count, though we see a long tail of outliers that may prove interesting.  Note, the log of review counts was taken here to diminish the impact of outlier restaurants with thousands of reviews.
 
 ## Proposing a New Metric
@@ -117,13 +253,9 @@ Interesting!  We can see our middle-of-the-pack restaurants typically have a hig
 So we see that five-star restaurants typically have smaller review counts than those in the middle of the pack.  What does that tell us?  Can we really trust a rating when only five reviews have been entered?  Wouldn't the 4.5 star restaurant with one hundred reviews be a much safer choice?
 
 The concept of weighted scoring has been brought up by Yelpers before, but usually to the tune of reactions like this -
-
 ![Imgur](https://i.imgur.com/7KSEkcw.png)
-
 Fortunately, the folks at [math.stackexchange](https://math.stackexchange.com/questions/942738/algorithm-to-calculate-rating-based-on-multiple-reviews-using-both-review-score) operate more on my frequency and offered the following formula for producing a weighted score -
-
-$$\text{score}=Pp+10(1-P)(1-e^{-q/Q}))$$
-
+![formula](img/Formula.PNG "Formula")
 To paraphrase, we can combine the notions of quality ($p$ for star rating) and quantity ($q$ for review count) by assigning each of them weights and normalizing onto a similar scale. $P$ becomes the weight (between 0 and 1) we assign to our star rating.  The review count becomes embedded in an exponential function with it's own weight, $Q$; and the output of this is multipled by the inverse of star's $P$ along with the constant $10$ make our score function on a nice 1 to 10 scale.  We add these together to get our weighted rating!
 
 Got that?  I recommend reading [the post](https://math.stackexchange.com/questions/942738/algorithm-to-calculate-rating-based-on-multiple-reviews-using-both-review-score) again.  It took me a few times as well.  Anywho, without further ado, let's introduce our restaurant heatscore™!
@@ -159,25 +291,17 @@ clean.sort_values("heatscore", ascending=False).head(15)[["review_count", "stars
 | hihud--QRriCYZw1zZvW4g | 3449         | 4.5   | 6.150000  |
 
 With the heatscore™ applied, we can see our top restaurants remain those with five stars.  However, around entry thirteen, we start to see the 4.5 star restaurants with very high volumes of reviews. Our formula appears to be working!  Let's play with the parameters a bit to see how they impact the scoring.
-
 ![heatscore1](img/Heatscore%20Comparision%20-%20High%20P%20Low%20Q.png "High P Low Q")
-
 A very high $P$ and a low $Q$ results in a scoring that's fairly close to the standard ratings.  Low star ratings are penalized severly, while high ratings get a huge boost.  Large review counts provide some boost, but not really enough to lift them above restaurants with a higher star review.
-
 ![heatscore2](img/Heatscore%20Comparision%20-%20Low%20P%20High%20Q.png "Low P High Q")
-
 Taken to the other extreme, a low $P$ and large $Q$ all but removes the influence of star scores.  Even very poorly rated restaurants can acheive high scores if their review counts are large.  Let's try to find a happy medium.
-
 ![heatscore3](img/Heatscore%20Comparision%20-%20Final.png "Final")
-
 This seems to work pretty well.  A slight preference for star reviews with a 0.65 $P$ ensures we don't have two-star restaurants out-performing five-star ones (assuming that have any reasonable number of reviews), and our $Q$ value ensures we factor in those highly-popular restaurants whose reviews may have regressed slightly towards the mean.  Long live the heatscore™!
 
 ## Predicting a Restaurant's Score
 
 But enough about that.  We spent all that time parsing attribute data, and we've done nothing with it!  Let's see if we have the necessary data at hand to accurately predict a given restaurant's star score.  We'll start by taking a look at the correlation among our features.
-
 ![corr](img/Correlation%20Matrix.png "Correlation Matrix")
-
 Our heatscore™ feature definitely does not belong in our modeling set, since it's partially derived from our target variable.  We some of the ambience variables correlating with certain meal types, along with brunch and breakfast correlating heavily.
 
 Let's first finish up our preprocessing.  We'll first split our data into feature (X) and target (y) sets, dropping our most excellent new heatscore™ metric, as it will likely be heavily correlated to our target star rating variable.  
@@ -202,15 +326,10 @@ Training Accuracy - 0.31
 Test Accuracy - 0.29
 ```
 ![distcomp](img/Distribution%20of%20Star%20Ratings%20-%20Predicted%20vs%20Actual.png "Distribution Comparison")
-
 Our initial model accurately selected the star rating 29% of the time on our test set.  This is better than random chance (10%), but still less than spectacular.  We can see in the histogram comparison, that our model overly favors 3.5 and 4 star ratings.  The edge ratings almost never received a prediction.
-
 ![conf](img/Confusion%20Matrix.png "Confusion Matrix")
-
 The confusion matrix confirms our initial observations.  The model does well predicting 3.5 and 4 star restaurants, specifically.  However, we can see most of the edge reviews get clustered into these categories, as well.
-
 ![feat](img/Feature%20Importance.png "Feature Importance")
-
 ## Steps for Improvement
 
 Plotting the feature importance is very telling.  Review count overwhelms every other feature in our data set!  In future attemps, we might be better off excluding this feature entirely
