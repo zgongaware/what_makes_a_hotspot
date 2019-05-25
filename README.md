@@ -254,7 +254,7 @@ The distribution of star ratings appears to be slightly skewed towards higher ra
 
 But let's dive a bit deeper and see how review count factors in.  Do we see restaurants with a higher number of reviews regress towards the mean of rating? Are there some that resist the pull towards the center?
 
-![dist3](img/Distribution%20of%20Review%20Count%20by%20Star%20Rating.png "Distribution of Review Count by Star Rating")
+![dist3](img/Distribution%20of%20Review%20Count%20by%20Star%20Ratings.png "Distribution of Review Count by Star Rating")
 
 Interesting!  We can see our middle-of-the-pack restaurants typically have a higher count of reviews than those on the edges.  One star reviewed restaurants have the least reviews.  This might be from bad reviews driving other Yelpers away, or it could just be that nobody posts a review for the McDonald's on Exit 73 unless they've had a really bad experience.  Five star reviewed restaurants have the second-lowest count, though we see a long tail of outliers that may prove interesting.  Note, the log of review counts was taken here to diminish the impact of outlier restaurants with thousands of reviews.
 
