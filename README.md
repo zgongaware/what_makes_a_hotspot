@@ -1,6 +1,6 @@
 # Yelp Restaurant Exploration
 ## Introduction
-A person's choice in dining has always been so subjective.  Each of has own our preferences and biases when it comes to food, and so the phrase "Where should we eat?" has launched countless debates and stalled decisions.  Yelp has offerred us a solution to that age-old debate. Crowd-consensus has provided us with objective evidence that this restaurant here is truly the one for us.
+A person's choice in dining has always been so subjective.  Each of us has our own preferences and biases when it comes to food, and so the phrase "Where should we eat?" has launched countless debates and stalled decisions.  Yelp has offerred us a solution to that age-old debate. Crowd-consensus has provided us with objective evidence that this restaurant here is truly the one for us.
 
 But how much can we truly learn from crowd-consensus?  Is a five-star restaurant with 10 reviews truly the better choice over a four-star with 500?  Are there any features about a restaurant that we might use to predict how it might be rated?  In this project, I'll explore these questions.
 
@@ -99,8 +99,10 @@ restaurants.head(1)['attributes'].values[0]
 ```
 ```
 {'RestaurantsReservations': 'True',
- 'GoodForMeal': "{'dessert': False, 'latenight': False, 'lunch': True, 'dinner': True, 'brunch': False, 'breakfast': False}",
- 'BusinessParking': "{'garage': False, 'street': False, 'validated': False, 'lot': True, 'valet': False}",
+ 'GoodForMeal': "{'dessert': False, 'latenight': False, 'lunch': True, 
+                  'dinner': True, 'brunch': False, 'breakfast': False}",
+ 'BusinessParking': "{'garage': False, 'street': False, 'validated': False, 
+                      'lot': True, 'valet': False}",
  'Caters': 'True',
  'NoiseLevel': "u'loud'",
  'RestaurantsTableService': 'True',
@@ -108,7 +110,9 @@ restaurants.head(1)['attributes'].values[0]
  'RestaurantsPriceRange2': '2',
  'OutdoorSeating': 'False',
  'BikeParking': 'False',
- 'Ambience': "{'romantic': False, 'intimate': False, 'classy': False, 'hipster': False, 'divey': False, 'touristy': False, 'trendy': False, 'upscale': False, 'casual': True}",
+ 'Ambience': "{'romantic': False, 'intimate': False, 'classy': False, 'hipster': False, 
+               'divey': False, 'touristy': False, 'trendy': False, 'upscale': False, 
+               'casual': True}",
  'HasTV': 'False',
  'WiFi': "u'no'",
  'GoodForKids': 'True',
@@ -250,7 +254,7 @@ The distribution of star ratings appears to be slightly skewed towards higher ra
 
 But let's dive a bit deeper and see how review count factors in.  Do we see restaurants with a higher number of reviews regress towards the mean of rating? Are there some that resist the pull towards the center?
 
-![dist3](img/Distribution of Review Count by Star Rating.png "Distribution of Review Count by Star Rating")
+![dist3](img/Distribution%20of%20Review%20Count%20by%20Star%20Rating.png "Distribution of Review Count by Star Rating")
 
 Interesting!  We can see our middle-of-the-pack restaurants typically have a higher count of reviews than those on the edges.  One star reviewed restaurants have the least reviews.  This might be from bad reviews driving other Yelpers away, or it could just be that nobody posts a review for the McDonald's on Exit 73 unless they've had a really bad experience.  Five star reviewed restaurants have the second-lowest count, though we see a long tail of outliers that may prove interesting.  Note, the log of review counts was taken here to diminish the impact of outlier restaurants with thousands of reviews.
 
