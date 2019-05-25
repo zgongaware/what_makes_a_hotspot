@@ -137,7 +137,8 @@ def parse_nested(x):
     
 def normalize_nested(df, col):
     """
-    Clean a nested column within the attributes field, convert from string to a dictionary, and normalize to fit the data set
+    Clean a nested column within the attributes field, convert from string to a dictionary, 
+    and normalize to fit the data set
     """
     
     norm = df["attributes"].apply(lambda x: x.get(col) if x is not None else '{"None": 1}')
@@ -241,11 +242,13 @@ Wow! That was a lot of work!  There were a few eccentricities in the attributes 
 ![dist1](img/Distribution%20of%20Star%20Ratings.png "Distribution of Star Ratings")
 ![dist2](img/Cumulative%20Distribution%20of%20Star%20Ratings.png "Cumulative Distribution of Star Ratings")
 
+
 The distribution of star ratings appears to be slightly skewed towards higher ratings, though fives remain relatively rare.  It seems Yelp reviewers trend towards the "good, but not great" view on most restaurants - at least in the cities we have available to us.  Looking at the cumulative distribution chart, we can see just about 60% of reviews fall at 3.5 stars or less.
 
 ## The Impact of Review Count
 
 But let's dive a bit deeper and see how review count factors in.  Do we see restaurants with a higher number of reviews regress towards the mean of rating? Are there some that resist the pull towards the center?
+
 ![dist3](img/Distribution of Review Count by Star Rating.png "Distribution of Review Count by Star Rating")
 
 Interesting!  We can see our middle-of-the-pack restaurants typically have a higher count of reviews than those on the edges.  One star reviewed restaurants have the least reviews.  This might be from bad reviews driving other Yelpers away, or it could just be that nobody posts a review for the McDonald's on Exit 73 unless they've had a really bad experience.  Five star reviewed restaurants have the second-lowest count, though we see a long tail of outliers that may prove interesting.  Note, the log of review counts was taken here to diminish the impact of outlier restaurants with thousands of reviews.
@@ -255,12 +258,14 @@ Interesting!  We can see our middle-of-the-pack restaurants typically have a hig
 So we see that five-star restaurants typically have smaller review counts than those in the middle of the pack.  What does that tell us?  Can we really trust a rating when only five reviews have been entered?  Wouldn't the 4.5 star restaurant with one hundred reviews be a much safer choice?
 
 The concept of weighted scoring has been brought up by Yelpers before, but usually to the tune of reactions like this -
+
 ![Imgur](https://i.imgur.com/7KSEkcw.png)
 
 Fortunately, the folks at [math.stackexchange](https://math.stackexchange.com/questions/942738/algorithm-to-calculate-rating-based-on-multiple-reviews-using-both-review-score) operate more on my frequency and offered the following formula for producing a weighted score -
+
 ![formula](img/Formula.PNG "Formula")
 
-To paraphrase, we can combine the notions of quality ($p$ for star rating) and quantity ($q$ for review count) by assigning each of them weights and normalizing onto a similar scale. $P$ becomes the weight (between 0 and 1) we assign to our star rating.  The review count becomes embedded in an exponential function with it's own weight, $Q$; and the output of this is multipled by the inverse of star's $P$ along with the constant $10$ make our score function on a nice 1 to 10 scale.  We add these together to get our weighted rating!
+To paraphrase, we can combine the notions of quality (`p` for star rating) and quantity (`q` for review count) by assigning each of them weights and normalizing onto a similar scale. `P` becomes the weight (between 0 and 1) we assign to our star rating.  The review count becomes embedded in an exponential function with it's own weight, `Q`; and the output of this is multiplied by the inverse of star's `P` along with the constant `10` make our score function on a nice 1 to 10 scale.  We add these together to get our weighted rating!
 
 Got that?  I recommend reading [the post](https://math.stackexchange.com/questions/942738/algorithm-to-calculate-rating-based-on-multiple-reviews-using-both-review-score) again.  It took me a few times as well.  Anywho, without further ado, let's introduce our restaurant heatscore™!
 
@@ -295,15 +300,18 @@ clean.sort_values("heatscore", ascending=False).head(15)[["review_count", "stars
 | hihud--QRriCYZw1zZvW4g | 3449         | 4.5   | 6.150000  |
 
 With the heatscore™ applied, we can see our top restaurants remain those with five stars.  However, around entry thirteen, we start to see the 4.5 star restaurants with very high volumes of reviews. Our formula appears to be working!  Let's play with the parameters a bit to see how they impact the scoring.
+
 ![heatscore1](img/Heatscore%20Comparision%20-%20High%20P%20Low%20Q.png "High P Low Q")
 
-A very high $P$ and a low $Q$ results in a scoring that's fairly close to the standard ratings.  Low star ratings are penalized severly, while high ratings get a huge boost.  Large review counts provide some boost, but not really enough to lift them above restaurants with a higher star review.
+A very high `P` and a low `Q` results in a scoring that's fairly close to the standard ratings.  Low star ratings are penalized severely, while high ratings get a huge boost.  Large review counts provide some boost, but not really enough to lift them above restaurants with a higher star review.
+
 ![heatscore2](img/Heatscore%20Comparision%20-%20Low%20P%20High%20Q.png "Low P High Q")
 
-Taken to the other extreme, a low $P$ and large $Q$ all but removes the influence of star scores.  Even very poorly rated restaurants can acheive high scores if their review counts are large.  Let's try to find a happy medium.
+Taken to the other extreme, a low `P` and large `Q` all but removes the influence of star scores.  Even very poorly rated restaurants can acheive high scores if their review counts are large.  Let's try to find a happy medium.
+
 ![heatscore3](img/Heatscore%20Comparision%20-%20Final.png "Final")
 
-This seems to work pretty well.  A slight preference for star reviews with a 0.65 $P$ ensures we don't have two-star restaurants out-performing five-star ones (assuming that have any reasonable number of reviews), and our $Q$ value ensures we factor in those highly-popular restaurants whose reviews may have regressed slightly towards the mean.  Long live the heatscore™!
+This seems to work pretty well.  A slight preference for star reviews with a 0.65 `P` ensures we don't have two-star restaurants out-performing five-star ones (assuming that have any reasonable number of reviews), and our $Q$ value ensures we factor in those highly-popular restaurants whose reviews may have regressed slightly towards the mean.  Long live the heatscore™!
 
 ## Predicting a Restaurant's Score
 
@@ -336,9 +344,11 @@ Test Accuracy - 0.29
 ![distcomp](img/Distribution%20of%20Star%20Ratings%20-%20Predicted%20vs%20Actual.png "Distribution Comparison")
 
 Our initial model accurately selected the star rating 29% of the time on our test set.  This is better than random chance (10%), but still less than spectacular.  We can see in the histogram comparison, that our model overly favors 3.5 and 4 star ratings.  The edge ratings almost never received a prediction.
+
 ![conf](img/Confusion%20Matrix.png "Confusion Matrix")
 
 The confusion matrix confirms our initial observations.  The model does well predicting 3.5 and 4 star restaurants, specifically.  However, we can see most of the edge reviews get clustered into these categories, as well.
+
 ![feat](img/Feature%20Importance.png "Feature Importance")
 
 ## Steps for Improvement
