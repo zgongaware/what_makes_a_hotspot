@@ -4,8 +4,9 @@ A person's choice in dining has always been so subjective.  Each of has own our 
 
 But how much can we truly learn from crowd-consensus?  Is a five-star restaurant with 10 reviews truly the better choice over a four-star with 500?  Are there any features about a restaurant that we might use to predict how it might be rated?  In this project, I'll explore these questions.
 
+*Note: You can check out the full code (with commentary!) in the [Yelp Restaurant Exploration](/notebooks/Yelp%20Restaurant%20Exploration.ipynb) notebook.*
 ## The Dataset
-[Yelp and Kaggle](https://www.kaggle.com/yelp-dataset/yelp-dataset) have partered to provide us with an extensive dataset around Yelp's primary experiences - business information, user profiles, reviews, tips, and check-ins.   The data is organized into six .json files with over 5,000,000 entries between them.  However, in this project we will only focus on one - [yelp_academic_dataset_business.json](yelp_academic_dataset_business.json), which contains information on over 174,000 business in 11 metropolitan areas.
+[Yelp and Kaggle](https://www.kaggle.com/yelp-dataset/yelp-dataset) have partnered to provide us with an extensive dataset around Yelp's primary experiences - business information, user profiles, reviews, tips, and check-ins.   The data is organized into six .json files with over 5,000,000 entries between them.  However, in this project we will only focus on one - [yelp_academic_dataset_business.json](yelp_academic_dataset_business.json), which contains information on over 174,000 business in 11 metropolitan areas.
 
 ## Questions to Answer
 - What is the distribution of star ratings for restaurants on Yelp?
