@@ -1,5 +1,5 @@
 # What Makes a Hotspot?
-What makes a Yelp hotspot?  Exploring the top restaurants in America's largest cities.
+What makes a Yelp hotspot?  Exploring the top restaurants in Yelp's business data set.
 
 ## Data Sources
-[Simple Maps US Cities Database](https://simplemaps.com/data/us-cities)
+[Yelp Dataset](https://www.kaggle.com/yelp-dataset/yelp-dataset)
