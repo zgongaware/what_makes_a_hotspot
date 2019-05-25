@@ -337,7 +337,8 @@ As a first pass, we'll use an ensemble classification model called Gradient Boos
 
 ```python
 X_train, X_test, y_train, y_test = preprocess_data(clean, 0.3, 99)
-train_pred, test_pred, train_score, test_score, model = predict_ratings(X_train, X_test, y_train, y_test, 99)
+train_pred, test_pred, train_score, test_score, model = predict_ratings(
+        X_train, X_test, y_train, y_test, 99)
 
 print(f"Training Accuracy - {round(train_score, 2)}")
 print(f"Test Accuracy - {round(test_score, 2)}")
