@@ -316,7 +316,7 @@ Taken to the other extreme, a low `P` and large `Q` all but removes the influenc
 
 ![heatscore3](img/Heatscore%20Comparision%20-%20Final.png "Final")
 
-This seems to work pretty well.  A slight preference for star reviews with a 0.65 `P` ensures we don't have two-star restaurants out-performing five-star ones (assuming that have any reasonable number of reviews), and our $Q$ value ensures we factor in those highly-popular restaurants whose reviews may have regressed slightly towards the mean.  Long live the heatscore™!
+This seems to work pretty well.  A slight preference for star reviews with a 0.65 `P` ensures we don't have two-star restaurants out-performing five-star ones (assuming that have any reasonable number of reviews), and our `Q` value ensures we factor in those highly-popular restaurants whose reviews may have regressed slightly towards the mean.  Long live the heatscore™!
 
 ## Predicting a Restaurant's Score
 
