@@ -1,6 +1,6 @@
 # Yelp Restaurant Exploration
 ## Introduction
-A person's choice in dining has always been so subjective.  Each of us has our own preferences and biases when it comes to food, and so the phrase "Where should we eat?" has launched countless debates and stalled decisions.  Yelp has offerred us a solution to that age-old debate. Crowd-consensus has provided us with objective evidence that this restaurant here is truly the one for us.
+A person's choice in dining has always been so subjective.  Each of us has our own preferences and biases when it comes to food, and so the phrase "Where should we eat?" has launched countless debates and stalled decisions.  Yelp has offered us a solution to that age-old debate. Crowd-consensus has provided us with objective evidence that this restaurant here is truly the one for us.
 
 But how much can we truly learn from crowd-consensus?  Is a five-star restaurant with 10 reviews truly the better choice over a four-star with 500?  Are there any features about a restaurant that we might use to predict how it might be rated?  In this project, I'll explore these questions.
 
