@@ -323,7 +323,7 @@ This seems to work pretty well.  A slight preference for star reviews with a 0.6
 But enough about that.  We spent all that time parsing attribute data, and we've done nothing with it!  Let's see if we have the necessary data at hand to accurately predict a given restaurant's star score.  We'll start by taking a look at the correlation among our features.
 ![corr](img/Correlation%20Matrix.png "Correlation Matrix")
 
-Our heatscore™ feature definitely does not belong in our modeling set, since it's partially derived from our target variable.  We some of the ambience variables correlating with certain meal types, along with brunch and breakfast correlating heavily.
+Our heatscore™ feature definitely does not belong in our modeling set, since it's partially derived from our target variable.  We see some of the ambience variables correlating with certain meal types, along with brunch and breakfast correlating heavily.
 
 Let's first finish up our preprocessing.  We'll first split our data into feature (X) and target (y) sets, dropping our most excellent new heatscore™ metric, as it will likely be heavily correlated to our target star rating variable.  
 
