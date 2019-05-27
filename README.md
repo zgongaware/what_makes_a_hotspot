@@ -364,7 +364,7 @@ Plotting the feature importance is very telling.  Review count overwhelms every 
 Either way, this serves as a good baseline, but there's a lot of room for improvement.  What could our next steps be to make it more robust?
 
 - We removed all of the geographic information in the initial cleaning of the data set.  How might we incorporate this?  Are reviewers in Québec more generous in their ratings than those in Nevada?  What if we brought in additional geographic data such as census information to tell us more about the neighborhoods these restaurants could be found in?
-- We also removed the category field after using it to identify restaurants.  There are a lot of these, which might cause some issues but over-dimensionality, but perhaps there are some subcategories that flag more popular restaurants.  Maybe Arizonans are enthusiastic about barbeque in particular.
+- We also removed the category field after using it to identify restaurants.  There are a lot of these, which might cause some issues with over-dimensionality, but perhaps there are some subcategories that flag more popular restaurants.  Maybe Arizonans are enthusiastic about barbeque in particular.
 - Dimensionality reduction techniques such as principle components analysis might help us identify clusters of useful features.
 - Finally, parameter tuning can be especially impactful on algorithms like gradient boost.  Grid search techniques might help us identify the optimal parameters for our model and data.
 
