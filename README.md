@@ -248,7 +248,7 @@ Wow! That was a lot of work!  There were a few eccentricities in the attributes 
 ![dist2](img/Cumulative%20Distribution%20of%20Star%20Ratings.png "Cumulative Distribution of Star Ratings")
 
 
-The distribution of star ratings appears to be slightly skewed towards higher ratings, though fives remain relatively rare.  It seems Yelp reviewers trend towards the "good, but not great" view on most restaurants - at least in the cities we have available to us.  Looking at the cumulative distribution chart, we can see just about 60% of reviews fall at 3.5 stars or less.
+The distribution of star ratings appears to be slightly skewed towards higher ratings, though fives remain relatively rare.  It seems Yelp reviewers trend towards the "good, but not great" view on most restaurants - at least in the cities we have available to us.  Looking at the cumulative distribution chart, we can see just about 60% of restaurants fall at 3.5 stars or less.
 
 ## The Impact of Review Count
 
